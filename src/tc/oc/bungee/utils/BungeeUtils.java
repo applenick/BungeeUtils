@@ -8,7 +8,11 @@ import tc.oc.bungee.utils.commands.ServerCommands;
 import com.sk89q.bungee.util.BungeeCommandsManager;
 import com.sk89q.bungee.util.CommandExecutor;
 import com.sk89q.bungee.util.CommandRegistration;
-import com.sk89q.minecraft.util.commands.*;
+import com.sk89q.minecraft.util.commands.CommandException;
+import com.sk89q.minecraft.util.commands.CommandPermissionsException;
+import com.sk89q.minecraft.util.commands.CommandUsageException;
+import com.sk89q.minecraft.util.commands.MissingNestedCommandException;
+import com.sk89q.minecraft.util.commands.WrappedCommandException;
 
 public class BungeeUtils extends Plugin implements CommandExecutor<CommandSender> {
     private static BungeeUtils bungeeutils;
@@ -42,21 +46,20 @@ public class BungeeUtils extends Plugin implements CommandExecutor<CommandSender
         try {
             this.commands.execute(commandName, args, sender, sender);
         } catch (CommandPermissionsException e) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission.");
+        	BungeeMessages.commandPermissionsException(sender);
         } catch (MissingNestedCommandException e) {
-            sender.sendMessage(ChatColor.RED + e.getUsage());
+            BungeeMessages.nestedCommandUsageException(sender, e.getUsage());
         } catch (CommandUsageException e) {
-            sender.sendMessage(ChatColor.RED + e.getMessage());
-            sender.sendMessage(ChatColor.RED + e.getUsage());
+        	BungeeMessages.commandUsageException(sender, e.getMessage(), e.getUsage());
         } catch (WrappedCommandException e) {
             if (e.getCause() instanceof NumberFormatException) {
-                sender.sendMessage(ChatColor.RED + "Number expected, string received instead.");
+                BungeeMessages.numberFormatException(sender);
             } else {
-                sender.sendMessage(ChatColor.RED + "An error has occurred. See console.");
-                e.printStackTrace();
+            	BungeeMessages.consoleError(sender);
+            	e.printStackTrace();
             }
         } catch (CommandException e) {
-            sender.sendMessage(ChatColor.RED + e.getMessage());
+        	BungeeMessages.commandException(sender, e.getMessage());
         }
     }
 }
